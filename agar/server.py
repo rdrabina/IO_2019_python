@@ -27,16 +27,24 @@ class Server:
         return data_json
 
     def handle_client_connection(self, client_socket, add):
+        player_name = None
         while True:
             request = client_socket.recv(1024).strip()
             print("{0} wrote: {1}".format(add, request))
             out = self.parse_bytes_to_json(request)
+
             if "login" in out.keys():
-                player = model.Player(out["login"], out.get("department", None))
+                player_name = out.get("login")
+                player = model.Player(out.get("login"), out.get("department", None))
                 self.game_state.add_player(player)
                 print(self.game_state)
                 starting_state = json.loads((GameStateEncoder().encode(self.game_state)))
                 client_socket.sendall(bytearray(str(starting_state), 'UTF-8'))
+
+            if "update" in out.keys():
+                player = self.game_state.get_player(player_name)
+                current_coordinates = out.get("coordinates", None)
+                direction = out.get("direction", None)
 
             client_socket.sendall(bytearray(str(out), 'UTF-8'))
 
