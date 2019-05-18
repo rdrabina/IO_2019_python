@@ -42,8 +42,12 @@ class Player(MapObject):
         self.velocity = 0
         self.direction = (0, 0)
 
-    def calculate(self, mouse_coordinates):
-        (x, y) = mouse_coordinates
+    def calculate_velocity(self):
+        (x, y) = self.coordinates
+        return self.velocity
+
+    def set_coordinates(self, coordinates):
+        self.coordinates = coordinates
 
 
 class Plankton(MapObject):
