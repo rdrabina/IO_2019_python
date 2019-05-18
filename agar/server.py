@@ -53,7 +53,9 @@ class Server:
             single_client_handler.start()
 
 
-if __name__ == "__main__":
+def main():
     server = Server()
 
 
+if __name__ == "__main__":
+    main()
