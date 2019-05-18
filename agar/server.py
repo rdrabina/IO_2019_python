@@ -4,6 +4,9 @@ import json
 
 class MyTCPHandler(socketserver.BaseRequestHandler):
 
+    def __init__(self):
+        self.data = None
+
     def handle(self):
         # self.request is the TCP socket connected to the client
         self.data = self.request.recv(1024).strip()
@@ -18,4 +21,5 @@ if __name__ == "__main__":
     HOST, PORT = "localhost", 9999
 
     with socketserver.TCPServer((HOST, PORT), MyTCPHandler) as server:
+        print("server started")
         server.serve_forever()
