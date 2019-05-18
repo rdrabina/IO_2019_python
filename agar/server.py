@@ -1,6 +1,7 @@
 import socket
 import threading
 import json
+import time
 from agar import model
 
 
@@ -12,8 +13,9 @@ class GameStateEncoder(json.JSONEncoder):
 class Server:
     def __init__(self):
         self.game_state = model.GameState()
+        self.player_to_socket_map = {}
         bind_ip = '0.0.0.0'
-        bind_port = 9999
+        bind_port = 9998
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server.bind((bind_ip, bind_port))
@@ -35,6 +37,7 @@ class Server:
 
             if "login" in out.keys():
                 player_name = out.get("login")
+                self.player_to_socket_map.update({player_name: client_socket})
                 player = model.Player(out.get("login"), out.get("department", None))
                 self.game_state.add_player(player)
                 print(self.game_state)
@@ -45,16 +48,9 @@ class Server:
                 player = self.game_state.get_player(player_name)
                 current_coordinates = out.get("coordinates", None)
                 direction = out.get("direction", None)
-
-            client_socket.sendall(bytearray(str(out), 'UTF-8'))
-
-    def validate_user(self, nick):
-        pass
-        # TODO zamienic na gamestate
-        # for user in active_clients.keys():
-        #    if nick == user:
-        #        return False
-        # return True
+                player.coordinates = current_coordinates
+                player.direction = direction
+                player.calculate()
 
     def handle_clients(self, server):
         while True:
@@ -63,10 +59,18 @@ class Server:
             single_client_handler = threading.Thread(target=self.handle_client_connection, args=(client_sock, address,))
             single_client_handler.start()
 
+    def broadcast_game_state(self):
+        gamestate_json = json.loads(GameStateEncoder().encode(self.game_state))
+        for player in self.player_to_socket_map.keys():
+            player_socket = self.player_to_socket_map.get(player)
+            player_socket.sendall(bytearray(str(gamestate_json), 'UTF-8'))
+
 
 def main():
     server = Server()
-    print(json.loads((GameStateEncoder().encode(server.game_state))))
+    while True:
+        time.sleep(1)
+        server.broadcast_game_state()
 
 
 if __name__ == "__main__":
