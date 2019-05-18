@@ -43,11 +43,8 @@ class Player(MapObject):
         self.direction = (0, 0)
 
     def calculate_velocity(self):
-        (x, y) = self.coordinates
+        self.velocity = Config.velocityFunction(self.weight)
         return self.velocity
-
-    def set_coordinates(self, coordinates):
-        self.coordinates = coordinates
 
 
 class Plankton(MapObject):
