@@ -32,19 +32,22 @@ class MapObject:
 
 
 class Player(MapObject):
-    def __init__(self, login, department, socket, image=None):
+    def __init__(self, login, department, image=None):
         # TODO randomly spawn of new player
         super(Player, self).__init__(5, 5)
         self.login = login
         self.department = department
-        self.socket = socket
         self.image = image
         self.weight = Config.PLAYER_STARTING_WEIGHT
         self.velocity = 0
         self.direction = (0, 0)
 
-    def calculate(self, mouse_coordinates):
-        (x, y) = mouse_coordinates
+    def calculate_velocity(self):
+        (x, y) = self.coordinates
+        return self.velocity
+
+    def set_coordinates(self, coordinates):
+        self.coordinates = coordinates
 
 
 class Plankton(MapObject):
