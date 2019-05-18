@@ -32,12 +32,11 @@ class MapObject:
 
 
 class Player(MapObject):
-    def __init__(self, login, department, socket, image=None):
+    def __init__(self, login, department, image=None):
         # TODO randomly spawn of new player
         super(Player, self).__init__(5, 5)
         self.login = login
         self.department = department
-        self.socket = socket
         self.image = image
         self.weight = Config.PLAYER_STARTING_WEIGHT
         self.velocity = 0
