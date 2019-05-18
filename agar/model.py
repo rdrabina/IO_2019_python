@@ -43,7 +43,7 @@ class Player(MapObject):
         self.direction = (0, 0)
 
     def calculate_velocity(self):
-        self.velocity = Config.velocityFunction(self.weight)
+        self.velocity = Config.velocity_function(self.weight)
         return self.velocity
 
 

@@ -6,5 +6,5 @@ class Config:
     PLANKTON_WEIGHT = 1
 
     @staticmethod
-    def velocityFunction(weight):
+    def velocity_function(weight):
         return 10 - log(weight)
