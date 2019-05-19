@@ -9,6 +9,8 @@ class Detector(object):
         self.command_invoker = command_invoker
 
     def detect_collisions(self, game_state):
+        commands = []
+        commands += self.detect_player_collisions(game_state.players)
         pass
 
     def detect_player_collisions(self, players):

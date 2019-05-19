@@ -1,5 +1,6 @@
 import abc
 import json
+from threading import Lock
 
 
 class Invoker:
@@ -10,18 +11,31 @@ class Invoker:
     def __init__(self):
         self.commands = []
         self.command_types = ["addPlankton", "removePlankton", "addPlayer", "updatePlayer", "removePlayer"]
+        self.lock = Lock()
 
     def store_command(self, command):
+        self.lock.acquire()
         self.commands.append(command)
+        self.lock.release()
+
+    def store_commands(self, commands):
+        self.lock.acquire()
+        self.commands += commands
+        self.lock.release()
 
     def execute_commands(self, game_state):
+        self.lock.acquire()
         for command in self.commands:
             command.execute(game_state)
+        self.lock.release()
 
     def clear_commands(self):
+        self.lock.acquire()
         self.commands.clear()
+        self.lock.release()
 
     def to_json(self):
+        self.lock.acquire()
         obj_dict = {}
         for command_type in self.command_types:
             commands_with_type = self.get_commands_with_type(command_type)
@@ -29,6 +43,7 @@ class Invoker:
             for command in commands_with_type:
                 commands_json_list.append(command.to_json())
             obj_dict[command_type] = commands_json_list
+        self.lock.release()
         return json.dumps(str(obj_dict))
 
     def get_commands_with_type(self, command_type):

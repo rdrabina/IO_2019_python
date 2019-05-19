@@ -41,15 +41,17 @@ class Server:
                     pass
                     # TODO only happens when client disconnects
                 if "login" in out.keys():
-                    print("New client")
                     player_name = out.get("login")
+                    print("New client {0}".format(player_name))
                     self.player_to_socket_map.update({player_name: client_socket})
+
                     player = model.Player(out.get("login"), out.get("department", None))
-                    self.game_state.add_player(player)
-                    print(self.game_state)
+
                     new_state_invoker = command.Invoker()
-                    for c in self.game_state.get_commands_creating_current_state():
-                        new_state_invoker.store_command(c)
+                    add_player_command = command.AddPlayer(player)
+                    new_state_invoker.store_command(add_player_command)
+                    commands = self.game_state.get_commands_creating_current_state()
+                    new_state_invoker.store_commands(commands)
                     commands_json = new_state_invoker.to_json()
                     client_socket.sendall(bytearray(str(commands_json), 'UTF-8'))
 
