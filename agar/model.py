@@ -1,5 +1,6 @@
 from agar.config import Config
 import agar.command as command
+import collision
 
 
 class GameState(object):
@@ -36,8 +37,7 @@ class GameState(object):
         self.players.pop(login)
 
     def get_plankton(self, coordinates):
-        # TODO proper double comparison
-        return filter(lambda p: p.coordinates == coordinates, self.plankton)
+        return filter(lambda p: GameState.is_very_close(p.coordinates, coordinates), self.plankton)
 
     def add_plankton(self, plankton):
         self.plankton.append(plankton)
@@ -58,13 +58,28 @@ class GameState(object):
         self.powerUps.append(powerup)
 
     def get_powerup(self, coordinates):
-        return filter(lambda p: p.coordinates == coordinates, self.powerUps)
+        return filter(lambda p: GameState.is_very_close(p.coordinates, coordinates), self.powerUps)
+
+    @staticmethod
+    def is_very_close(c1, c2):
+        return MapObject.get_coords_distance(c1, c2) < Config.COORDS_MIN_DIFFERENCE
 
 
 class MapObject:
     def __init__(self, x=0, y=0):
         self.coordinates = (x, y)
         self.weight = Config.PLANKTON_WEIGHT
+
+    @staticmethod
+    def get_objects_distance(o1, o2):
+        return MapObject.get_coords_distance(o1.coordinates, o2.coordinates)
+
+    @staticmethod
+    def get_coords_distance(c1, c2):
+        (o1_x, o1_y) = c1
+        (o2_x, o2_y) = c2
+        distance_vector = collision.Vector(o2_x - o1_x, o2_y - o1_y)
+        return distance_vector.ln()
 
     def to_dict(self):
         (x, y) = self.coordinates
@@ -114,3 +129,6 @@ class Plankton(MapObject):
 class Powerup(MapObject):
     def __init__(self, x, y):
         super(Powerup, self).__init__(x, y)
+
+    def to_dict(self):
+        return super().to_dict()

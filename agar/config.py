@@ -7,6 +7,7 @@ class Config:
     PLANKTON_WEIGHT = 1
     MAP_WIDTH = 4000
     MAP_HEIGHT = 3000
+    COORDS_MIN_DIFFERENCE = 0.1
 
     @staticmethod
     def velocity_function(weight):

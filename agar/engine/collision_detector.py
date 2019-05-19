@@ -1,4 +1,3 @@
-import collision
 from .. import model
 from ..config import Config
 from itertools import combinations
@@ -54,16 +53,10 @@ class Detector(object):
 
     # return (winner, loser) of collision or else (None, None) (if there is no collision)
     def check_objects_collision(self, o1, r1, o2, r2):
-        distance = self.get_object_distance(o1, o2)
+        distance = model.MapObject.get_objects_distance(o1, o2)
         if r1 >= distance or r2 >= distance:
             if r1 > r2:
                 return o1, o2
             else:
                 return o2, o1
         return None, None
-
-    def get_object_distance(self, o1, o2):
-        (o1_x, o1_y) = o1.coordinates
-        (o2_x, o2_y) = o2.coordinates
-        distance_vector = collision.Vector(o2_x - o1_x, o2_y - o1_y)
-        return distance_vector.ln()

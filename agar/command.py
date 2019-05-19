@@ -10,7 +10,7 @@ class Invoker:
 
     def __init__(self):
         self.commands = []
-        self.command_types = ["addPlankton", "removePlankton", "addPlayer", "updatePlayer", "removePlayer"]
+        self.command_types = ["addPlankton", "removePlankton", "addPlayer", "updatePlayer", "removePlayer", "addPowerup"]
         self.lock = Lock()
 
     def store_command(self, command):
@@ -129,8 +129,11 @@ class RemovePlayer(Command):
 
 class AddPowerup(Command):
     def __init__(self, powerup):
-        super().__init__("AddPowerup")
+        super().__init__("addPowerup")
         self.powerup = powerup
 
     def execute(self, game_state):
         game_state.add_powerup(self.powerup)
+
+    def to_json(self):
+        return self.powerup.to_dict()

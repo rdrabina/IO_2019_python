@@ -110,13 +110,6 @@ class Server:
         for plankton in new_plankton:
             add_plankton_command = command.AddPlankton(plankton)
             self.command_invoker.store_command(add_plankton_command)
-        #player = model.Player("login", "department", None)
-        #add_player_command = command.AddPlayer(player)
-        #update_player_command = command.UpdatePlayer(player)
-        #remove_player_command = command.RemovePlayer(player)
-        #self.command_invoker.store_command(add_player_command)
-        #self.command_invoker.store_command(update_player_command)
-        #self.command_invoker.store_command(remove_player_command)
 
     def acquire_new_powerup(self):
         new_powerup = self.powerup_generator.get_new_powerup()
