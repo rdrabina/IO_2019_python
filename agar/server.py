@@ -2,15 +2,12 @@ import socket
 import threading
 import json
 import time
+import copy
 from agar import model
 from agar.engine.plankton_generator import PlanktonGenerator
 from agar.engine.powerup_generator import PowerupGenerator
 import agar.command as command
-
-
-class GameStateEncoder(json.JSONEncoder):
-    def default(self, o):
-        return o.__dict__
+from agar.engine.collision_detector import Detector
 
 
 class Server:
@@ -23,6 +20,7 @@ class Server:
         self.powerup_generator = PowerupGenerator()
         self.powerup_generator.start()
         self.command_invoker = command.Invoker()
+        self.collision_detector = Detector()
         bind_ip = '0.0.0.0'
         bind_port = 9998
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -49,23 +47,31 @@ class Server:
                     pass
                     # TODO only happens when client disconnects
                 if "login" in out.keys():
-                    print("New client")
                     player_name = out.get("login")
+                    print("New client {0}".format(player_name))
                     self.player_to_socket_map.update({player_name: client_socket})
+
                     player = model.Player(out.get("login"), out.get("department", None))
-                    self.game_state.add_player(player)
-                    print(self.game_state)
-                    starting_state = json.loads((GameStateEncoder().encode(self.game_state)))
-                    client_socket.sendall(bytearray(str(starting_state), 'UTF-8'))
+
+                    new_state_invoker = command.Invoker()
+                    add_player_command = command.AddPlayer(player)
+                    new_state_invoker.store_command(add_player_command)
+                    commands = self.game_state.get_commands_creating_current_state()
+                    new_state_invoker.store_commands(commands)
+                    commands_json = new_state_invoker.to_json()
+                    client_socket.sendall(bytearray(str(commands_json), 'UTF-8'))
 
                 if "update" in out.keys():
-                    print("Client position update")
+                    print("Client position update: {0}".format(player_name))
                     player = self.game_state.get_player(player_name)
                     current_coordinates = out.get("coordinates", None)
                     direction = out.get("direction", None)
-                    player.coordinates = current_coordinates
-                    player.direction = direction
-                    player.calculate_velocity()
+                    player_copy = copy.deepcopy(player)
+                    player_copy.coordinates = current_coordinates
+                    player_copy.direction = direction
+                    player_copy.calculate_velocity()
+                    update_player_command = command.UpdatePlayer(player_copy)
+                    self.command_invoker.store_command(update_player_command)
 
     def handle_clients(self, server):
         while True:
@@ -75,17 +81,20 @@ class Server:
             single_client_handler.start()
 
     def broadcast_game_state(self):
-        #TODO check collision with plankton
-        self.acquire_fresh_plankton()
-        self.acquire_new_powerup()
+        # check collisions and prepare commands to update state
+        commands = self.collision_detector.detect_collisions(self.game_state)
+        self.command_invoker.store_commands(commands)
 
         # execution stage
         self.command_invoker.execute_commands(self.game_state)
         self.send_commands_to_clients()
         self.command_invoker.clear_commands()
 
+        self.acquire_fresh_plankton()
+        self.acquire_new_powerup()
+
     def send_commands_to_clients(self):
-        commands_json = json.loads(GameStateEncoder().encode(self.command_invoker))
+        commands_json = self.command_invoker.to_json()
         disconnected_clients = []
         for player in self.player_to_socket_map.keys():
             try:
@@ -101,6 +110,13 @@ class Server:
         for plankton in new_plankton:
             add_plankton_command = command.AddPlankton(plankton)
             self.command_invoker.store_command(add_plankton_command)
+        #player = model.Player("login", "department", None)
+        #add_player_command = command.AddPlayer(player)
+        #update_player_command = command.UpdatePlayer(player)
+        #remove_player_command = command.RemovePlayer(player)
+        #self.command_invoker.store_command(add_player_command)
+        #self.command_invoker.store_command(update_player_command)
+        #self.command_invoker.store_command(remove_player_command)
 
     def acquire_new_powerup(self):
         new_powerup = self.powerup_generator.get_new_powerup()
