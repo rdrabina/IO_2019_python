@@ -5,6 +5,7 @@ class GameState(object):
     def __init__(self):
         self.players = {}
         self.plankton = []
+        self.powerUps = []
 
     def get_player(self, login):
         return self.players.get(login, None)
@@ -21,6 +22,11 @@ class GameState(object):
     def add_plankton(self, plankton):
         self.plankton.append(plankton)
 
+    def add_powerup(self, powerup):
+        self.powerUps.append(powerup)
+
+    def get_powerup(self, coordinates):
+        return filter(lambda p: p.coordinates == coordinates, self.powerUps)
 
 class MapObject:
     def __init__(self, x=0, y=0):
@@ -47,3 +53,7 @@ class Player(MapObject):
 class Plankton(MapObject):
     def __init__(self, x, y):
         super(Plankton, self).__init__(x, y)
+
+class Powerup(MapObject):
+    def __init__(self, x, y):
+        super(Powerup, self).__init__(x, y)

@@ -4,6 +4,7 @@ import json
 import time
 from agar import model
 from agar.engine.plankton_generator import PlanktonGenerator
+from agar.engine.powerup_generator import PowerupGenerator
 import agar.command as command
 
 
@@ -19,6 +20,8 @@ class Server:
         self.player_to_socket_map = {}
         self.plankton_generator = PlanktonGenerator()
         self.plankton_generator.start()
+        self.powerup_generator = PowerupGenerator()
+        self.powerup_generator.start()
         self.command_invoker = command.Invoker()
         bind_ip = '0.0.0.0'
         bind_port = 9998
@@ -74,6 +77,7 @@ class Server:
     def broadcast_game_state(self):
         #TODO check collision with plankton
         self.acquire_fresh_plankton()
+        self.acquire_new_powerup()
 
         # execution stage
         self.command_invoker.execute_commands(self.game_state)
@@ -98,6 +102,11 @@ class Server:
             add_plankton_command = command.AddPlankton(plankton)
             self.command_invoker.store_command(add_plankton_command)
 
+    def acquire_new_powerup(self):
+        new_powerup = self.powerup_generator.get_new_powerup()
+        for powerup in new_powerup:
+            add_powerup_command = command.AddPowerup(powerup)
+            self.command_invoker.store_command(add_powerup_command)
 
 def run():
     server = Server()

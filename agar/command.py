@@ -44,3 +44,12 @@ class AddPlankton(Command):
 
     def execute(self, game_state):
         game_state.add_plankton(self.plankton)
+
+
+class AddPowerup(Command):
+    def __init__(self, powerup):
+        super().__init__("AddPowerup")
+        self.powerup = powerup
+
+    def execute(self, game_state):
+        game_state.add_powerup(self.powerup)

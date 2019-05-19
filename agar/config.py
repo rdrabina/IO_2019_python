@@ -19,3 +19,7 @@ class Config:
     @staticmethod
     def plankton_diameter_function(weight):
         return 4 * sqrt(weight) + 5
+
+    @staticmethod
+    def powerup_diameter_function(weight):
+        return sqrt(weight) + 20
