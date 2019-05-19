@@ -89,6 +89,7 @@ class Server:
     def acquire_fresh_plankton(self):
         new_plankton = self.plankton_generator.get_new_plankton()
         for plankton in new_plankton:
+            #TODO create command ADD PLANKTON
             self.game_state.add_plankton(plankton)
 
 
