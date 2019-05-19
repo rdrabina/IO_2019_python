@@ -4,7 +4,7 @@ from agar.config import Config
 class GameState(object):
     def __init__(self):
         self.players = {}
-        self.plankton = {}
+        self.plankton = []
 
     def get_player(self, login):
         return self.players.get(login, None)
@@ -16,13 +16,10 @@ class GameState(object):
         self.players[login] = player
 
     def get_plankton(self, coordinates):
-        return self.plankton.get(coordinates, None)
+        return filter(lambda p: p.coordinates == coordinates, self.plankton)
 
     def add_plankton(self, plankton):
-        coordinates = plankton.coordinates
-        if self.get_plankton(coordinates) is None:
-            self.plankton[coordinates] = []
-        self.plankton[coordinates] += plankton
+        self.plankton.append(plankton)
 
 
 class MapObject:
@@ -43,11 +40,8 @@ class Player(MapObject):
         self.direction = (0, 0)
 
     def calculate_velocity(self):
-        (x, y) = self.coordinates
+        self.velocity = Config.velocity_function(self.weight)
         return self.velocity
-
-    def set_coordinates(self, coordinates):
-        self.coordinates = coordinates
 
 
 class Plankton(MapObject):
