@@ -79,6 +79,9 @@ class Player(MapObject):
         self.velocity = Config.velocity_function(self.weight)
         return self.velocity
 
+    def eat(self, obj):
+        self.weight += obj.weight
+
     def to_dict(self):
         result = super().to_dict()
         result['login'] = self.login
