@@ -117,6 +117,7 @@ class Server:
             add_powerup_command = command.AddPowerup(powerup)
             self.command_invoker.store_command(add_powerup_command)
 
+
 def run():
     server = Server()
     while True:

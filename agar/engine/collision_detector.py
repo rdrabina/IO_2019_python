@@ -13,6 +13,7 @@ class Detector(object):
         commands = []
         commands += self.detect_player_collisions(game_state.players)
         commands += self.detect_plankton_collisions(game_state.players, game_state.plankton)
+        commands += self.detect_powerup_collisions(game_state.players, game_state.powerups)
         return commands
 
     def detect_player_collisions(self, players):
@@ -48,6 +49,22 @@ class Detector(object):
                     remove_plankton_command = command.RemovePlankton(food)
                     update_player_command = command.UpdatePlayer(player_copy)
                     commands.append(remove_plankton_command)
+                    commands.append(update_player_command)
+        return commands
+
+    def detect_powerup_collisions(self, players, powerups):
+        commands = []
+        for player in players:
+            player_radius = Config.player_diameter_function(player.weight) / 2
+            for p in powerups:
+                p_radius = Config.plankton_diameter_function(p.weight)
+                (powerup, player) = self.check_objects_collision(player, player_radius, p, p_radius)
+                if powerup is not None:
+                    player_copy = copy.deepcopy(player)
+                    player_copy.eat(powerup)
+                    remove_powerup_command = command.RemovePowerup(powerup)
+                    update_player_command = command.UpdatePlayer(player_copy)
+                    commands.append(remove_powerup_command)
                     commands.append(update_player_command)
         return commands
 

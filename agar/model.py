@@ -7,7 +7,7 @@ class GameState(object):
     def __init__(self):
         self.players = {}
         self.plankton = []
-        self.powerUps = []
+        self.powerups = []
 
     def get_player(self, login):
         return self.players.get(login, None)
@@ -55,10 +55,14 @@ class GameState(object):
         return commands
 
     def add_powerup(self, powerup):
-        self.powerUps.append(powerup)
+        self.powerups.append(powerup)
 
     def get_powerup(self, coordinates):
-        return filter(lambda p: GameState.is_very_close(p.coordinates, coordinates), self.powerUps)
+        return filter(lambda p: GameState.is_very_close(p.coordinates, coordinates), self.powerups)
+
+    def delete_powerup(self, coordinates):
+        for p in self.get_powerup(coordinates):
+            self.powerups.remove(p)
 
     @staticmethod
     def is_very_close(c1, c2):
