@@ -81,7 +81,8 @@ class Server:
         self.command_invoker.clear_commands()
 
     def send_commands_to_clients(self):
-        commands_json = json.loads(GameStateEncoder().encode(self.command_invoker))
+        commands_json = self.command_invoker.to_json()
+        print(commands_json)
         disconnected_clients = []
         for player in self.player_to_socket_map.keys():
             try:
@@ -97,6 +98,13 @@ class Server:
         for plankton in new_plankton:
             add_plankton_command = command.AddPlankton(plankton)
             self.command_invoker.store_command(add_plankton_command)
+        #player = model.Player("login", "department", None)
+        #add_player_command = command.AddPlayer(player)
+        #update_player_command = command.UpdatePlayer(player)
+        #remove_player_command = command.RemovePlayer(player)
+        #self.command_invoker.store_command(add_player_command)
+        #self.command_invoker.store_command(update_player_command)
+        #self.command_invoker.store_command(remove_player_command)
 
 
 def run():
