@@ -32,14 +32,14 @@ class PlanktonGenerator:
 
     def generate_plankton(self):
         while True:
-            print("plankton generated")
+            #print("plankton generated")
             self._changesLock.acquire()
             if self._threadExitFlag:
                 self._threadExitFlag.release()
                 return None
 
-            vertical_position = random(random.randint(0, Config.MAP_HEIGHT))
-            horizontal_position = random(random.randint(0, Config.MAP_WIDTH))
+            vertical_position = random.randint(0, Config.MAP_HEIGHT)
+            horizontal_position = random.randint(0, Config.MAP_WIDTH)
             print("new plankton: (" + str(vertical_position) + "," + str(horizontal_position)+")")
             plankton = Plankton(horizontal_position, vertical_position)
             self._newPlanktonList.append(plankton)
@@ -51,7 +51,7 @@ class PlanktonGenerator:
             sleep(1)
 
     def get_new_plankton(self):
-        print("getCurrenciesRate")
+        print("\ngetPlanktonUpdate")
         self._newPlanktonUpdate.acquire()
         self._newPlanktonUpdate.wait()
         self._newPlanktonUpdate.release()
