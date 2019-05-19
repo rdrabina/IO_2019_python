@@ -3,6 +3,7 @@ import random
 from time import sleep
 from agar.model import Plankton
 from agar.config import Config
+import copy
 
 
 class PlanktonGenerator:
@@ -57,7 +58,7 @@ class PlanktonGenerator:
         self._newPlanktonUpdate.release()
 
         self._changesLock.acquire()
-        result = self._newPlanktonList
+        result = copy.deepcopy(self._newPlanktonList)
         self._newPlanktonList.clear()
         self._changesLock.release()
         return result

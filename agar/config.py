@@ -1,4 +1,5 @@
 from math import log
+from math import sqrt
 
 
 class Config:
@@ -10,3 +11,11 @@ class Config:
     @staticmethod
     def velocity_function(weight):
         return 10 - log(weight)
+
+    @staticmethod
+    def player_diameter_function(weight):
+        return sqrt(weight) + 20
+
+    @staticmethod
+    def plankton_diameter_function(weight):
+        return 4 * sqrt(weight) + 5

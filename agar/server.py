@@ -4,6 +4,7 @@ import json
 import time
 from agar import model
 from agar.engine.plankton_generator import PlanktonGenerator
+import agar.command as command
 
 
 class GameStateEncoder(json.JSONEncoder):
@@ -18,6 +19,7 @@ class Server:
         self.player_to_socket_map = {}
         self.plankton_generator = PlanktonGenerator()
         self.plankton_generator.start()
+        self.command_invoker = command.Invoker()
         bind_ip = '0.0.0.0'
         bind_port = 9998
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -70,17 +72,21 @@ class Server:
             single_client_handler.start()
 
     def broadcast_game_state(self):
-        game_state_json = json.loads(GameStateEncoder().encode(self.game_state))
-        self.check_clients_connection(game_state_json)
         #TODO check collision with plankton
         self.acquire_fresh_plankton()
 
-    def check_clients_connection(self, game_state_json):
+        # execution stage
+        self.command_invoker.execute_commands(self.game_state)
+        self.send_commands_to_clients()
+        self.command_invoker.clear_commands()
+
+    def send_commands_to_clients(self):
+        commands_json = json.loads(GameStateEncoder().encode(self.command_invoker))
         disconnected_clients = []
         for player in self.player_to_socket_map.keys():
             try:
                 player_socket = self.player_to_socket_map.get(player)
-                player_socket.sendall(bytearray(str(game_state_json), 'UTF-8'))
+                player_socket.sendall(bytearray(str(commands_json), 'UTF-8'))
             except BrokenPipeError:
                 disconnected_clients.append(player)
         for client in disconnected_clients:
@@ -89,8 +95,8 @@ class Server:
     def acquire_fresh_plankton(self):
         new_plankton = self.plankton_generator.get_new_plankton()
         for plankton in new_plankton:
-            #TODO create command ADD PLANKTON
-            self.game_state.add_plankton(plankton)
+            add_plankton_command = command.AddPlankton(plankton)
+            self.command_invoker.store_command(add_plankton_command)
 
 
 def run():
