@@ -57,7 +57,7 @@ class Detector(object):
         for player in players:
             player_radius = Config.player_diameter_function(player.weight) / 2
             for p in powerups:
-                p_radius = Config.plankton_diameter_function(p.weight)
+                p_radius = Config.powerup_diameter_function()
                 (powerup, player) = self.check_objects_collision(player, player_radius, p, p_radius)
                 if powerup is not None:
                     player_copy = copy.deepcopy(player)
