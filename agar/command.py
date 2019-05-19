@@ -10,7 +10,8 @@ class Invoker:
 
     def __init__(self):
         self.commands = []
-        self.command_types = ["addPlankton", "removePlankton", "addPlayer", "updatePlayer", "removePlayer", "addPowerup", "removePowerup"]
+        #TODO add powerups
+        self.command_types = ["addPlankton", "removePlankton", "addPlayer", "updatePlayer", "removePlayer"]
         self.lock = Lock()
 
     def store_command(self, command):
