@@ -7,11 +7,6 @@ from agar.engine.plankton_generator import PlanktonGenerator
 import agar.command as command
 
 
-class GameStateEncoder(json.JSONEncoder):
-    def default(self, o):
-        return o.__dict__
-
-
 class Server:
     def __init__(self):
         print("Server start")
@@ -52,8 +47,11 @@ class Server:
                     player = model.Player(out.get("login"), out.get("department", None))
                     self.game_state.add_player(player)
                     print(self.game_state)
-                    starting_state = json.loads((GameStateEncoder().encode(self.game_state)))
-                    client_socket.sendall(bytearray(str(starting_state), 'UTF-8'))
+                    new_state_invoker = command.Invoker()
+                    for c in self.game_state.get_commands_creating_current_state():
+                        new_state_invoker.store_command(c)
+                    commands_json = new_state_invoker.to_json()
+                    client_socket.sendall(bytearray(str(commands_json), 'UTF-8'))
 
                 if "update" in out.keys():
                     print("Client position update")
@@ -82,7 +80,6 @@ class Server:
 
     def send_commands_to_clients(self):
         commands_json = self.command_invoker.to_json()
-        print(commands_json)
         disconnected_clients = []
         for player in self.player_to_socket_map.keys():
             try:

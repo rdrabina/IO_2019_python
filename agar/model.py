@@ -1,4 +1,5 @@
 from agar.config import Config
+import agar.command as command
 
 
 class GameState(object):
@@ -43,6 +44,14 @@ class GameState(object):
     def delete_plankton(self, coordinates):
         for p in self.get_plankton(coordinates):
             self.plankton.remove(p)
+
+    def get_commands_creating_current_state(self):
+        commands = []
+        for p in self.plankton:
+            commands.append(command.AddPlankton(p))
+        for player in self.players.values():
+            commands.append(command.AddPlayer(player))
+        return commands
 
 
 class MapObject:
