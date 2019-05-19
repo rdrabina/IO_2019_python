@@ -100,7 +100,7 @@ class AddPlayer(Command):
         game_state.add_player(self.player)
 
     def to_json(self):
-        return self.player.to_full_dict()
+        return self.player.to_dict()
 
 
 class UpdatePlayer(Command):
