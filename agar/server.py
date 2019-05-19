@@ -67,7 +67,7 @@ class Server:
                     current_coordinates = out.get("coordinates", None)
                     direction = out.get("direction", None)
                     player_copy = copy.deepcopy(player)
-                    player_copy.coordinates = current_coordinates
+                    player_copy.coordinates = (current_coordinates[0], current_coordinates[1])
                     player_copy.direction = direction
                     player_copy.calculate_velocity()
                     update_player_command = command.UpdatePlayer(player_copy)
