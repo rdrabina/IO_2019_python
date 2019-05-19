@@ -32,21 +32,17 @@ class Detector(object):
     def players_collide(self, p1, p2):
         if p1.login == p2.login:
             raise Exception("Players with same login: {0}".format(p1.login))
-        return self.objects_collide(p1, p2)
-
-    def objects_collide(self, o1, o2):
-        r1 = Config.player_diameter_function(o1.weight) / 2
-        r2 = Config.player_diameter_function(o2.weight) / 2
-        (winner, loser) = self.check_objects_collision(o1, r1, o2, r2)
-        if winner is not None:
-            return winner, loser
-        return None, None
+        r1 = Config.player_diameter_function(p1.weight) / 2
+        r2 = Config.player_diameter_function(p2.weight) / 2
+        return self.check_objects_collision(p1, r1, p2, r2)
 
     def detect_plankton_collisions(self, players, plankton):
         commands = []
         for player in players:
+            player_radius = Config.player_diameter_function(player.weight) / 2
             for p in plankton:
-                (food, player) = self.objects_collide(player, p)
+                p_radius = Config.plankton_diameter_function(p.weight)
+                (food, player) = self.check_objects_collision(player, player_radius, p, p_radius)
                 if food is not None:
                     player_copy = copy.deepcopy(player)
                     player_copy.eat(food)
