@@ -33,24 +33,28 @@ class Server:
         while True:
             request = client_socket.recv(1024).strip()
             print("{0} wrote: {1}".format(add, request))
-            out = self.parse_bytes_to_json(request)
+            if request is not None:
+                try:
+                    out = self.parse_bytes_to_json(request)
+                except json.JSONDecodeError:
+                    pass
+                    # TODO only happens when client disconnects
+                if "login" in out.keys():
+                    player_name = out.get("login")
+                    self.player_to_socket_map.update({player_name: client_socket})
+                    player = model.Player(out.get("login"), out.get("department", None))
+                    self.game_state.add_player(player)
+                    print(self.game_state)
+                    starting_state = json.loads((GameStateEncoder().encode(self.game_state)))
+                    client_socket.sendall(bytearray(str(starting_state), 'UTF-8'))
 
-            if "login" in out.keys():
-                player_name = out.get("login")
-                self.player_to_socket_map.update({player_name: client_socket})
-                player = model.Player(out.get("login"), out.get("department", None))
-                self.game_state.add_player(player)
-                print(self.game_state)
-                starting_state = json.loads((GameStateEncoder().encode(self.game_state)))
-                client_socket.sendall(bytearray(str(starting_state), 'UTF-8'))
-
-            if "update" in out.keys():
-                player = self.game_state.get_player(player_name)
-                current_coordinates = out.get("coordinates", None)
-                direction = out.get("direction", None)
-                player.coordinates = current_coordinates
-                player.direction = direction
-                player.calculate()
+                if "update" in out.keys():
+                    player = self.game_state.get_player(player_name)
+                    current_coordinates = out.get("coordinates", None)
+                    direction = out.get("direction", None)
+                    player.coordinates = current_coordinates
+                    player.direction = direction
+                    player.calculate()
 
     def handle_clients(self, server):
         while True:
@@ -61,9 +65,15 @@ class Server:
 
     def broadcast_game_state(self):
         gamestate_json = json.loads(GameStateEncoder().encode(self.game_state))
+        disconnected_clients = []
         for player in self.player_to_socket_map.keys():
-            player_socket = self.player_to_socket_map.get(player)
-            player_socket.sendall(bytearray(str(gamestate_json), 'UTF-8'))
+            try:
+                player_socket = self.player_to_socket_map.get(player)
+                player_socket.sendall(bytearray(str(gamestate_json), 'UTF-8'))
+            except BrokenPipeError:
+                disconnected_clients.append(player)
+        for client in disconnected_clients:
+            self.player_to_socket_map.pop(client)
 
 
 def main():
