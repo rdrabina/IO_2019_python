@@ -39,7 +39,7 @@ class Server:
         player_name = None
         while True:
             request = client_socket.recv(1024).strip()
-            print("{0} wrote: {1}".format(add, request))
+            # print("{0} wrote: {1}".format(add, request))
             if request is not None:
                 try:
                     out = self.parse_bytes_to_json(request)
@@ -59,18 +59,23 @@ class Server:
                     commands = self.game_state.get_commands_creating_current_state()
                     new_state_invoker.store_commands(commands)
                     commands_json = new_state_invoker.to_json()
+                    add_player_command.execute(self.game_state)
+                    # self.game_state.add_player(player)
+
                     client_socket.sendall(bytearray(str(commands_json), 'UTF-8'))
 
                 if "update" in out.keys():
-                    print("Client position update: {0}".format(player_name))
+                    # print("Client position update: {0}".format(player_name))
                     player = self.game_state.get_player(player_name)
                     current_coordinates = out.get("coordinates", None)
+                    # print("Player {0} coords: {1}".format(player_name, current_coordinates))
                     direction = out.get("direction", None)
                     player_copy = copy.deepcopy(player)
                     player_copy.coordinates = (current_coordinates[0], current_coordinates[1])
                     player_copy.direction = direction
                     player_copy.calculate_velocity()
                     update_player_command = command.UpdatePlayer(player_copy)
+                    # update_player_command.execute(self.game_state)
                     self.command_invoker.store_command(update_player_command)
 
     def handle_clients(self, server):
@@ -121,6 +126,6 @@ class Server:
 def run():
     server = Server()
     while True:
-        time.sleep(1)
         server.broadcast_game_state()
 
+run()

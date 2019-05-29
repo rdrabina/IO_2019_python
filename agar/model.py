@@ -68,6 +68,9 @@ class GameState(object):
     def is_very_close(c1, c2):
         return MapObject.get_coords_distance(c1, c2) < Config.COORDS_MIN_DIFFERENCE
 
+    def __repr__(self):
+        return "Gamestate: " + str(self.players) + str(self.plankton) + str(self.powerups)
+
 
 class MapObject:
     def __init__(self, x=0, y=0):

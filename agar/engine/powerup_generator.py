@@ -40,7 +40,7 @@ class PowerupGenerator:
 
             vertical_position = random.randint(0, Config.MAP_HEIGHT)
             horizontal_position = random.randint(0, Config.MAP_WIDTH)
-            print("new powerup: (" + str(vertical_position) + "," + str(horizontal_position)+")")
+            # print("new powerup: (" + str(vertical_position) + "," + str(horizontal_position)+")")
             powerup = Powerup(horizontal_position, vertical_position)
             self._newPowerupList.append(powerup)
 
@@ -48,10 +48,10 @@ class PowerupGenerator:
             self._newPowerupUpdate.acquire()
             self._newPowerupUpdate.notifyAll()
             self._newPowerupUpdate.release()
-            sleep(20)
+            sleep(10)
 
     def get_new_powerup(self):
-        print("\ngetPowerupUpdate")
+        # print("\ngetPowerupUpdate")
         self._newPowerupUpdate.acquire()
         self._newPowerupUpdate.wait()
         self._newPowerupUpdate.release()

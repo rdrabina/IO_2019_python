@@ -38,27 +38,30 @@ class Detector(object):
 
     def detect_plankton_collisions(self, players, plankton):
         commands = []
-        for player in players:
+        for player in players.values():
             player_radius = Config.player_diameter_function(player.weight) / 2
             for p in plankton:
                 p_radius = Config.plankton_diameter_function(p.weight)
-                (food, player) = self.check_objects_collision(player, player_radius, p, p_radius)
+                (food, player_checked) = self.check_objects_collision(player, player_radius, p, p_radius)
                 if food is not None:
+                    print("COLLISION HURRAY with food" + food)
                     player_copy = copy.deepcopy(player)
                     player_copy.eat(food)
                     remove_plankton_command = command.RemovePlankton(food)
                     update_player_command = command.UpdatePlayer(player_copy)
                     commands.append(remove_plankton_command)
                     commands.append(update_player_command)
+                if player_checked is not None:
+                    player = player_checked
         return commands
 
     def detect_powerup_collisions(self, players, powerups):
         commands = []
-        for player in players:
+        for player in players.values():
             player_radius = Config.player_diameter_function(player.weight) / 2
             for p in powerups:
                 p_radius = Config.powerup_diameter_function()
-                (powerup, player) = self.check_objects_collision(player, player_radius, p, p_radius)
+                (powerup, player_checked) = self.check_objects_collision(player, player_radius, p, p_radius)
                 if powerup is not None:
                     player_copy = copy.deepcopy(player)
                     player_copy.eat(powerup)
@@ -66,6 +69,8 @@ class Detector(object):
                     update_player_command = command.UpdatePlayer(player_copy)
                     commands.append(remove_powerup_command)
                     commands.append(update_player_command)
+                if player_checked is not None:
+                    player = player_checked
         return commands
 
     # return (winner, loser) of collision or else (None, None) (if there is no collision)

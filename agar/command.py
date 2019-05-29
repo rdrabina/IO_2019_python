@@ -50,6 +50,9 @@ class Invoker:
     def get_commands_with_type(self, command_type):
         return filter(lambda c: c.command_type == command_type, self.commands)
 
+    def __repr__(self):
+        return str(self.commands)
+
 
 class Command(metaclass=abc.ABCMeta):
     """
@@ -101,7 +104,12 @@ class AddPlayer(Command):
         game_state.add_player(self.player)
 
     def to_json(self):
-        return self.player.to_dict()
+        player_dict = self.player.to_dict()
+        player_dict["coordinates"][0] = int(player_dict["coordinates"][0])
+        player_dict["coordinates"][1] = int(player_dict["coordinates"][1])
+        player_dict["velocity"] = int(player_dict["velocity"])
+
+        return player_dict
 
 
 class UpdatePlayer(Command):
@@ -113,7 +121,11 @@ class UpdatePlayer(Command):
         game_state.update_player(self.player)
 
     def to_json(self):
-        return self.player.to_dict()
+        player_dict = self.player.to_dict()
+        player_dict["coordinates"][0] = int(player_dict["coordinates"][0])
+        player_dict["coordinates"][1] = int(player_dict["coordinates"][1])
+        player_dict["velocity"] = int(player_dict["velocity"])
+        return player_dict
 
 
 class RemovePlayer(Command):
